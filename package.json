@@ -1,0 +1,16 @@
+{
+  "name": "notes-api-devops",
+  "version": "1.0.0",
+  "description": "Simple Notes API with DevOps tooling",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Add tests later\" && exit 0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "prom-client": "^15.1.2",
+    "uuid": "^9.0.0"
+  }
+}

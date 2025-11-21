@@ -1,0 +1,16 @@
+replicaCount: 1
+
+image:
+  repository: nouromry/notes-api
+  tag: "v1"
+  pullPolicy: Always
+
+service:
+  type: NodePort
+  port: 3000
+  nodePort: 30080
+
+ingress:
+  enabled: true
+  className: nginx
+  host: notes-api.local
