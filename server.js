@@ -5,9 +5,11 @@ const client = require("prom-client");
 const app = express();
 app.use(express.json());
 
+// In-memory database
 let notes = {};
 let requestCount = 0;
 
+// ---------------- Prometheus Metrics ----------------
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
 
@@ -19,17 +21,21 @@ const httpRequestCounter = new client.Counter({
 
 const noteCounter = new client.Gauge({
   name: "notes_count",
-  help: "Current number of notes in memory"
+  help: "Current number of notes stored in memory"
 });
 
-// ---- Logging helper ----
+// ---------------- Structured Logging ----------------
 function log(message, traceId) {
-  console.log(JSON.stringify({
-    timestamp: new Date().toISOString(),
-    traceId: traceId,
-    message: message
-  }));
+  console.log(
+    JSON.stringify({
+      timestamp: new Date().toISOString(),
+      traceId: traceId,
+      message: message
+    })
+  );
 }
+
+// ---------------- Tracing Middleware ----------------
 app.use((req, res, next) => {
   const traceId = uuidv4();
   req.traceId = traceId;
@@ -40,23 +46,29 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - req.startTime;
+
     log(`Completed ${res.statusCode} in ${duration}ms`, traceId);
 
-    // Update Prometheus metrics after response is sent
-    httpRequestCounter.labels(req.method, req.route ? req.route.path : req.path, res.statusCode).inc();
+    // Prometheus update after request
+    httpRequestCounter
+      .labels(req.method, req.route ? req.route.path : req.path, res.statusCode)
+      .inc();
     noteCounter.set(Object.keys(notes).length);
   });
 
   next();
 });
 
+// ---------------- CRUD API ----------------
+
 app.post("/notes", (req, res) => {
   const id = uuidv4();
   const note = {
-    id: id,
+    id,
     title: req.body.title,
     content: req.body.content
   };
+
   notes[id] = note;
   res.status(201).json(note);
 });
@@ -77,6 +89,7 @@ app.put("/notes/:id", (req, res) => {
 
   note.title = req.body.title ?? note.title;
   note.content = req.body.content ?? note.content;
+
   res.json(note);
 });
 
@@ -88,7 +101,7 @@ app.delete("/notes/:id", (req, res) => {
   res.json({ message: "Deleted" });
 });
 
-
+// ---------------- Basic custom metrics endpoint ----------------
 app.get("/basic-metrics", (req, res) => {
   res.json({
     requestCount: requestCount,
@@ -96,15 +109,18 @@ app.get("/basic-metrics", (req, res) => {
   });
 });
 
+// ---------------- Prometheus Metrics Endpoint ----------------
 app.get("/metrics", async (req, res) => {
   res.set("Content-Type", client.register.contentType);
   res.end(await client.register.metrics());
 });
 
+// ---------------- Health Check ----------------
 app.get("/health", (req, res) => {
   res.json({ status: "healthy" });
 });
 
+// ---------------- Start Server ----------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`API running on port ${PORT}`);
