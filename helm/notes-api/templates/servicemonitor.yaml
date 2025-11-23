@@ -7,8 +7,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      # 🟢 CHANGE THIS: Use the helper to guarantee a match with the Service
-      {{- include "notes-api.selectorLabels" . | nindent 6 }}
+      app: {{ .Chart.Name }}
   namespaceSelector:
     matchNames:
       - {{ .Release.Namespace }}
