@@ -287,12 +287,12 @@ curl -X POST http://localhost:3000/notes \
 ```
 
 ---
-🧪 Testing & Code Coverage
+## 🧪 Testing & Code Coverage
 
 This project includes unit and integration tests for the Notes API using Jest and Supertest.
 Tests are executed locally and automatically in CI.
 
-📁 Test Stack
+### 📁 Test Stack
 
 Test runner: Jest
 
@@ -306,7 +306,7 @@ npm test
 
 This command runs all tests and generates a coverage report.
 
-✅ Test Coverage Results
+### ✅ Test Coverage Results
 
 Latest test execution produced the following results:
 
@@ -322,7 +322,7 @@ Notes API - Unit & Integration Tests
 * ✔ GET /basic-metrics → should return basic metrics
 * ✔ GET /metrics → should expose Prometheus metrics
 
-📊 Coverage Summary
+### 📊 Coverage Summary
 * Metric	Coverage
 * Statements	93.44%
 * Branches	68.75%
@@ -368,5 +368,6 @@ Notes API - Unit & Integration Tests
 **Repository:** `notes-api-devops`
 
 ---
+
 
 
